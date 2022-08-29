@@ -1,0 +1,374 @@
+      SUBROUTINE READFF(MP,IREAD,TTIME0)                      
+C***********************************************************************
+      IMPLICIT REAL *8 (A-H,O-Z)                                        
+      PARAMETER(LI=711,LJ=131,LE=LI*LJ,LSP=52) 
+      COMMON/CB01/ ISYM,IFLOW,ISWRL,ITHRM,ICHEM,IGRAV,ITR,ISKIP(LE)                  
+      COMMON/CB02/ RREF,VREF,TREF,PREF,WM(LSP)
+      COMMON/CB03/ DT,X(LJ,LI),Y(LJ,LI),XXC(LI),XXS(LI),YYC(LJ),YYS(LJ)           
+      COMMON/CB04/ RHO(LJ,LI),FSP(LJ,LI,LSP),
+     1  U(LJ,LI),V(LJ,LI),W(LJ,LI),P(LJ,LI),HT(LJ,LI),TK(LJ,LI),
+     2  AK(LJ,LI),EPS(LJ,LI)
+      COMMON/CB06/ ALSTR,VSTR,RSTR,PSTR,TSTR,TMSTR,AMSTR,ACSTR,DSTR,  
+     1  HSTR,CPSTR,AKSTR,EPSTR,WMSTR,GASC,BETA1,BETA2,BETA3,BETA4,REI         
+      COMMON/CB07/ VMU(LJ,LI),VTC(LJ,LI),VDFSP(LJ,LI,LSP),TMU(LJ,LI)
+      COMMON/CB08/ TPOL1,TPOL2,POLSP(14,LSP),CISP(12,LSP)
+      COMMON/SOOT/ RSOOT,STMF(LJ,LI),STND(LJ,LI),STDF(LJ,LI)
+      COMMON/HFORM/ HFO(LSP)
+      COMMON/DUM0/ DATA2(LE*149)
+      DIMENSION DAT1(20),ITEMP(600),JTEMP(200)
+      READ(MP,102) IFLAME
+      IRFL=IFLAME
+                           NSOOT=0
+      IF(IFLAME.GT.400000) THEN
+                           NSOOT=1
+                           IFLAME=IFLAME-400000
+                           END IF
+                           NSWRL=0
+      IF(IFLAME.GT.200000) THEN
+                           NSWRL=1
+                           IFLAME=IFLAME-200000
+                           END IF
+      ISWRLA=0
+      IF(NSWRL.EQ.0) READ(MP,101) ILA,JLA,ISYMA,IFLOWA,
+     1    ITHRMA,ICHEMA,IGRAVA,INERTA,ITRA,DTA
+      IF(NSWRL.EQ.1) READ(MP,102) ILA,JLA,ISYMA,IFLOWA,ISWRLA,
+     1    ITHRMA,ICHEMA,IGRAVA,INERTA,ITRA,DTA
+      READ(MP,104) DAT1
+      IF(IFLAME.GE.100000) THEN
+          IFLAME=IFLAME-100000
+          READ(MP,103) NN,(IB1,JB1,IB2,JB2,N=1,NN)
+          END IF
+      WRITE(*,109) IRFL,ILA,JLA,ISYMA,IFLOWA,ISWRLA,
+     1    ITHRMA,ICHEMA,IGRAVA,INERTA,ITRA,DTA*DAT1(1)/DAT1(2)
+  109 FORMAT(6X,'IT CONTAINS--',I6,2X,2I4,7I2,I6,F10.7)
+      WRITE(16,110) ILA,JLA,DAT1(2)
+  110 FORMAT(1X,'READ DATA, IL=',I6,',  JL=',I6,',  VREF=',F7.2/)
+C     TTIME0=DTA*DFLOAT(ITRA-1)*DAT1(1)/DAT1(2)
+      TTIME0=0.0
+      ILJL=ILA*JLA
+      LLSP=IFLAME/100
+      IDATA2=ILJL*(LLSP+7)+NSWRL*ILJL
+      READ(MP,104) (DATA2(I),I=1,IDATA2)
+      IF(NSOOT.EQ.1) THEN
+           READ(MP,104) (DATA2(I),I=IDATA2+1,IDATA2+ILJL*2)
+           IDATA2=IDATA2+ILJL*2
+           END IF
+      IF(IFLOWA.EQ.2) 
+     1   READ(MP,104) (DATA2(I),I=IDATA2+1,IDATA2+ILJL*2)
+  101 FORMAT(9I6,F12.10)
+  102 FORMAT(10I6,F12.10)
+  103 FORMAT(21I6)
+  104 FORMAT(8(1PE14.7,1X))
+      NI=ILJL*NSWRL
+      NJ=ILJL*2*NSOOT
+C--------------------------ONE TO ONE TRANSFER--------------------------
+      IF(IREAD.EQ.2) THEN
+          IF((LI.NE.ILA).OR.(LJ.NE.JLA).OR.(LSP.NE.LLSP)) THEN
+            WRITE(*,922) ILA,JLA,LLSP,IFLAME
+  922       FORMAT(5X,'ILA = ',I3,',  JLA = ',I3,',  LLSP = ',I3,
+     1      '; but IREAD = ',I2/5X,'****RESETTING IREAD = 1****')
+            IREAD=1
+            GO TO 920
+            END IF
+          DO 910 I=1,LI
+          DO 910 J=1,LJ
+          IA=(I-1)*LJ+J
+          RHO(J,I)=DATA2(IA+ILJL*2)
+          TOT=0.0
+          DO 912 ISP=1,LLSP-1
+          FSP(J,I,ISP)=DATA2(IA+ILJL*2+ILJL*ISP)
+          TOT=TOT+FSP(J,I,ISP)
+  912     CONTINUE
+          FSP(J,I,LSP)=1.0-TOT
+          U(J,I)=DATA2(IA+ILJL*2+ILJL*LLSP)
+          V(J,I)=DATA2(IA+ILJL*3+ILJL*LLSP)
+          W(J,I)=0.0
+          IF(NSWRL.EQ.1) W(J,I)=DATA2(IA+ILJL*4+ILJL*LLSP)
+          P(J,I)=DATA2(IA+ILJL*4+NI+ILJL*LLSP)
+          HT(J,I)=DATA2(IA+ILJL*5+NI+ILJL*LLSP)
+          TK(J,I)=DATA2(IA+ILJL*6+NI+ILJL*LLSP)
+          STMF(J,I)=0.0
+          STND(J,I)=0.0
+          IF(NSOOT.EQ.1) THEN
+            STMF(J,I)=DATA2(IA+ILJL*7+NI+ILJL*LLSP)
+            STND(J,I)=DATA2(IA+ILJL*8+NI+ILJL*LLSP)
+          END IF
+          AK(J,I)=0.0
+          EPS(J,I)=0.0
+          IF(IFLOWA.EQ.2) THEN
+            AK(J,I)=DATA2(IA+ILJL*7+NI+NJ+ILJL*LLSP)
+            EPS(J,I)=DATA2(IA+ILJL*8+NI+NJ+ILJL*LLSP)
+          END IF
+  910     CONTINUE
+          GO TO 397
+          END IF
+  920     CONTINUE
+C----------------CONVERT READ X & Y INTO THE PRESENT MESH SYSTEM--------
+      GCONV=DAT1(1)/ALSTR
+      DO 120 I=1,ILJL+ILJL
+      DATA2(I)=DATA2(I)*GCONV
+      IF(DATA2(I).GT.1.0D-15) DATA2(I)=DATA2(I)-1.0D-15
+  120 CONTINUE
+C--------------------------------OVER-----------------------------------
+C-------------- CONVERT READ GLOBAL -->> FINITE-RATE CHEMISTRY ---------
+      IF(LLSP.EQ.5) THEN
+      DO 132 I=1,ILJL
+      FFU=DATA2(ILJL*3+I)
+      FO2=DATA2(ILJL*4+I)
+      FCO2=DATA2(ILJL*5+I)
+      FH2O=DATA2(ILJL*6+I)
+      FU=DATA2(ILJL*7+I)
+      FV=DATA2(ILJL*8+I)
+      FW=0.0
+      IF(NSWRL.EQ.1) FW=DATA2(ILJL*9+I)
+      FP=DATA2(ILJL*9+NI+I)
+      FH=DATA2(ILJL*10+NI+I)
+      FT=DATA2(ILJL*11+NI+I)
+      FSTMF=0.0
+      FSTND=0.0
+      IF(NSOOT.EQ.1) THEN
+         FSTMF=DATA2(ILJL*12+NI+I)
+         FSTND=DATA2(ILJL*13+NI+I)
+         END IF
+      FAK=0.0
+      FEPS=0.0
+      IF(IFLOWA.EQ.2) THEN
+         FAK=DATA2(ILJL*12+NI+NJ+I)
+         FEPS=DATA2(ILJL*13+NI+NJ+I)
+         END IF
+      DO 133 ISP=1,LSP-1
+      II=ILJL*(ISP+2)+I
+      DATA2(II)=0.0
+  133 CONTINUE      
+      RADADD=0.0001*FH2O
+      ILJLU=ILJL*(LSP+2)
+      DATA2(ILJLU+ILJL*9+I)=FEPS
+      DATA2(ILJLU+ILJL*8+I)=FAK
+      DATA2(ILJLU+ILJL*7+I)=FSTND
+      DATA2(ILJLU+ILJL*6+I)=FSTMF
+      DATA2(ILJLU+ILJL*5+I)=FT
+      DATA2(ILJLU+ILJL*4+I)=FH
+      DATA2(ILJLU+ILJL*3+I)=FP
+      DATA2(ILJLU+ILJL*2+I)=FW
+      DATA2(ILJLU+ILJL+I)=FV
+      DATA2(ILJLU+I)=FU
+      DATA2(ILJL*08+I)=FH2O-3.0*RADADD
+      DATA2(ILJL*07+I)=RADADD
+      DATA2(ILJL*06+I)=RADADD
+      DATA2(ILJL*05+I)=RADADD
+      DATA2(ILJL*12+I)=FCO2
+      DATA2(ILJL*04+I)=FO2
+      IF(IFLAME.EQ.511) DATA2(ILJL*49+I)=FFU
+      IF(IFLAME.EQ.510) DATA2(ILJL*11+I)=FFU
+      IF(IFLAME.EQ.509) DATA2(ILJL*14+I)=FFU
+      IF(IFLAME.EQ.508) DATA2(ILJL*42+I)=FFU
+      IF(IFLAME.EQ.507) DATA2(ILJL*43+I)=FFU
+      IF(IFLAME.EQ.506) DATA2(ILJL*22+I)=FFU
+      IF(IFLAME.EQ.505) DATA2(ILJL*19+I)=FFU
+      IF(IFLAME.EQ.504) DATA2(ILJL*24+I)=FFU
+      IF(IFLAME.EQ.503) DATA2(ILJL*32+I)=FFU
+      IF(IFLAME.EQ.502) DATA2(ILJL*15+I)=FFU
+      IF(IFLAME.EQ.501) DATA2(ILJL*03+I)=FFU
+  132 CONTINUE
+      END IF
+C--------------------------------OVER-----------------------------------
+      JB=1
+      DO 210 J=1,LJ
+      YNEW=Y(J,1)
+      JA=JB-1
+      IF(JA.LT.1) JA=1
+      DO 212 JB=JA,JLA
+      YOLD=DATA2(ILJL+JB)
+      JTEMP(J)=JB
+      IF(YOLD.GT.YNEW) GO TO 214
+  212 CONTINUE
+  214 CONTINUE
+  210 CONTINUE
+      IB=1
+      DO 220 I=1,LI
+      XNEW=X(1,I)
+      IA=IB-1
+      IF(IA.LT.1) IA=1
+      DO 222 IB=IA,ILA
+      IIB=(IB-1)*JLA+1
+      IIA=IIB-JLA
+      XOLD=DATA2(IIB)
+      ITEMP(I)=IIB
+      IF(XOLD.GT.XNEW) GO TO 224
+  222 CONTINUE
+  224 CONTINUE
+  220 CONTINUE
+      AF=DAT1(2)/VSTR
+      AFS=AF*AF
+C--------------------------INTERPOLATE SCALARS--------------------------
+      DO 310 I=1,LI
+      XNEW=X(1,I)
+      IIB=ITEMP(I)
+      IIA=IIB-JLA
+      XOLD=DATA2(IIB)
+      XOLDM=DATA2(IIA)
+      AX1=(XNEW-XOLDM)/(XOLD-XOLDM)
+      AX2=(XOLD-XNEW)/(XOLD-XOLDM)
+C     IF(AX2.LT.0.0) THEN
+                     AX1=1.0
+                     AX2=0.0
+C                    END IF
+      DO 312 J=1,LJ
+      YNEW=Y(J,1)
+      JJB=JTEMP(J)
+      JJA=JJB-1
+      YOLD=DATA2(ILJL+JJB)
+      YOLDM=DATA2(ILJL+JJA)
+      AY1=(YNEW-YOLDM)/(YOLD-YOLDM)
+      AY2=(YOLD-YNEW)/(YOLD-YOLDM)
+C     IF(AY2.LT.0.0) THEN
+                     AY1=1.0
+                     AY2=0.0
+C                    END IF
+      IXY=IIA+JJA-1+ILJL*2
+      RHO(J,I)=AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1        +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1)
+      FTOT=0.0
+      DO 314 ISP=1,LSP-1
+      IXY=IIA+JJA-1+ILJL*(ISP+2)
+      FSP(J,I,ISP)=AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1            +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1)
+      FTOT=FTOT+FSP(J,I,ISP)
+  314 CONTINUE
+      IXY=IIA+JJA-1+ILJL*(LSP+4)
+      W(J,I)=AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1      +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1)
+      IXY=IIA+JJA-1+ILJL*(LSP+5)
+      P(J,I)=(AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1       +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1))*AFS
+      IXY=IIA+JJA-1+ILJL*(LSP+6)
+      HT(J,I)=(AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1        +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1))*AFS
+      IXY=IIA+JJA-1+ILJL*(LSP+7)
+      TK(J,I)=AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1       +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1)
+      IXY=IIA+JJA-1+ILJL*(LSP+8)
+      STMF(J,I)=AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1       +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1)
+      IXY=IIA+JJA-1+ILJL*(LSP+9)
+      STND(J,I)=AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1        +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1)
+      FTOT=FTOT+STMF(J,I)
+      FSP(J,I,LSP)=1.0-FTOT
+      IF(IFLOWA.NE.2) GO TO 312
+      IXY=IIA+JJA-1+ILJL*(LSP+10)
+      AK(J,I)=AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1       +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1)
+      IXY=IIA+JJA-1+ILJL*(LSP+11)
+      EPS(J,I)=AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1        +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1)
+  312 CONTINUE
+  310 CONTINUE
+C-----------------------------STAGGERED GRID----------------------------
+C-----------------------------INTERPOLATE U-----------------------------
+      IB=2
+      DO 320 I=2,LI
+      XNEW=0.5*(X(1,I-1)+X(1,I))
+      IA=IB-1
+      IF(IA.LT.2) IA=2
+      DO 322 IB=IA,ILA
+      IIB=(IB-1)*JLA+1
+      IIA=IIB-JLA
+      XOLD=0.5*(DATA2(IIA)+DATA2(IIB))
+      IF(XOLD.GT.XNEW) GO TO 324
+  322 CONTINUE
+  324 CONTINUE
+      IIM=IIA-JLA
+      IF(IIM.LT.1) IIM=1
+      XOLDM=0.5*(DATA2(IIM)+DATA2(IIA))
+      AX1=(XNEW-XOLDM)/(XOLD-XOLDM)
+      AX2=(XOLD-XNEW)/(XOLD-XOLDM)
+      IF(AX2.LT.0.0) THEN
+                     AX1=1.0
+                     AX2=0.0
+                     END IF
+      DO 326 J=1,LJ
+      YNEW=Y(J,1)
+      JJB=JTEMP(J)
+      JJA=JJB-1
+      YOLD=DATA2(ILJL+JJB)
+      YOLDM=DATA2(ILJL+JJA)
+      AY1=(YNEW-YOLDM)/(YOLD-YOLDM)
+      AY2=(YOLD-YNEW)/(YOLD-YOLDM)
+      IF(AY2.LT.0.0) THEN
+                     AY1=1.0
+                     AY2=0.0
+                     END IF
+      IXY=IIA+JJA-1+ILJL*(LSP+2)
+      U(J,I)=(AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1       +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1))*AF
+  326 CONTINUE
+  320 CONTINUE
+C-----------------------------INTERPOLATE V-----------------------------
+      JTEMP(1)=1
+      JB=2
+      DO 330 J=2,LJ
+      YNEW=0.5*(Y(J-1,1)+Y(J,1))
+      JA=JB-1
+      IF(JA.LT.2) JA=2
+      DO 332 JB=JA,JLA
+      YOLD=0.5*(DATA2(ILJL+JB-1)+DATA2(ILJL+JB))
+      JTEMP(J)=JB
+      IF(YOLD.GT.YNEW) GO TO 334
+  332 CONTINUE
+  334 CONTINUE
+  330 CONTINUE
+      DO 336 I=1,LI
+      XNEW=X(1,I)
+      IIB=ITEMP(I)
+      IIA=IIB-JLA
+      XOLD=DATA2(IIB)
+      XOLDM=DATA2(IIA)
+      AX1=(XNEW-XOLDM)/(XOLD-XOLDM)
+      AX2=(XOLD-XNEW)/(XOLD-XOLDM)
+      IF(AX2.LT.0.0) THEN
+                     AX1=1.0
+                     AX2=0.0
+                     END IF
+      DO 338 J=2,LJ
+      YNEW=Y(J,1)
+      JJB=JTEMP(J)
+      JJA=JJB-1
+      JJM=JJA-1
+      IF(JJM.LT.1) JJM=1
+      YOLD=0.5*(DATA2(ILJL+JJA)+DATA2(ILJL+JJB))
+      YOLDM=0.5*(DATA2(ILJL+JJM)+DATA2(ILJL+JJA))
+      AY1=(YNEW-YOLDM)/(YOLD-YOLDM)
+      AY2=(YOLD-YNEW)/(YOLD-YOLDM)
+      IF(AY2.LT.0.0) THEN
+                     AY1=1.0
+                     AY2=0.0
+                     END IF
+      IXY=IIA+JJA-1+ILJL*(LSP+3)
+      V(J,I)=(AX2*AY2*DATA2(IXY)+AX1*AY2*DATA2(IXY+JLA)
+     1       +AX2*AY1*DATA2(IXY+1)+AX1*AY1*DATA2(IXY+JLA+1))*AF
+  338 CONTINUE
+  336 CONTINUE
+C------------------CALCULATE ENTHALPY USING NEW VARIABLES----------------
+  397 CONTINUE
+      DO 398 I=1,LI
+      DO 398 J=1,LJ
+      TKD=TK(J,I)*TSTR
+      TKD2=TKD*TKD
+      TKD3=TKD*TKD2
+      TKD4=TKD*TKD3
+      TKD5=TKD*TKD4
+      IPOLY=1
+      IF(TKD.GT.TPOL1) IPOLY=8
+      HNEW=0.0
+      DO 399 ISP=1,LSP
+      HNEW=HNEW+FSP(J,I,ISP)*((POLSP(IPOLY,ISP)*TKD
+     1    +POLSP(IPOLY+1,ISP)*TKD2/2.0+POLSP(IPOLY+2,ISP)*TKD3/3.0
+     1    +POLSP(IPOLY+3,ISP)*TKD4/4.0+POLSP(IPOLY+4,ISP)*TKD5/5.0
+     2    +POLSP(IPOLY+5,ISP))*GASC/WMSTR/HSTR/WM(ISP)-HFO(ISP))
+  399 CONTINUE
+      HT(J,I)=HNEW
+     1       +0.5*(U(J,I)*U(J,I)+V(J,I)*V(J,I)+W(J,I)*W(J,I))
+  398 CONTINUE
+      RETURN
+      END
