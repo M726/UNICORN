@@ -1,0 +1,156 @@
+0--------- Title for the Data ------------
+1, 2, 0, 0, 1700.0, 250, 054 / ISYM,IREAD,IGNIT,IGKEEP,IGTEMP,IGC,JGC
+	ISYM	-- 0 for Channel flows; 1 for the tube flows.
+	IREAD	-- 0 will start the calculations from scratch
+			1 will start the calculations with the read
+				initial flow solution from the 'FLAME.DATA' file.
+                         Data will be interpolated
+			2 will start the calculations with the read
+				initial flow solution from the 'FLAME.DATA' file.
+                         one-to-one transfer of Data
+	IGNIT	-- 'n' will put a fire at n th time step.
+	IGKEEP	-- No. of time steps Ignition will be on.
+	IGTEMP	-- Temperature of the ignition kernel.
+	IGC	-- i-value of the center of the ignition kernel.
+	JGC	-- j-value of the center of the ignition kernel.
+1,0, 0.01,0.0625,0.001,-40.0,0,4*0.0/ISTDY,INOISE,(X,Y,A,F of noise)
+	ISTDY	-- 0 for unsteady calculation
+		-- 1 for steady-state calculation
+	INOISE	-- "n" will introduce noise inside the circle of  'n' radius
+                     '0' will not add noise
+			X - x-coordinate of the center in meters
+			Y - y-coordinate of the center in meters
+			A - Amplitude of the noise
+			F - frequency of the noise
+	INOISE	-- "-n" will drive the jet with the given profile described with "n" points.
+			This should be followed by "n" values. Each line should contain 10 numbers and
+			the last line should have (n-10*lines) values
+			F - Frequency for repeating this profile
+0.0, 0.10,0.15 / RTIN,RTOT,ALENG 
+	RTIN	-- tube inner radius .
+	RTOT	-- tube outer radius .
+	ALENG	-- tube length in meters.
+10.0, 294.0,1.0133D+05, 1.225,1.0,10.0,0.233, 01/ Reference Values
+	u	-- Air Jet velocity at the entrance in m/s
+	T	-- Air Jet temperature in K
+	p	-- Air Jet pressure in N/m2.
+	rho	-- Air density in kg/m3. This will be automatically
+			modified for the inlet fuel temperature T.
+	k	-- turbulent energy at the entrance
+	eps	-- turbulent energy dissipation at the entrance.
+	fO2	-- Oxygen mass fraction in the air stream.
+	IFUEL	-- Fuel Type (1 - Hydrogen, 2 - Methane, 3 - Methanol, 4 - Acetylene, 
+		              5 - Ethylene, 6 - Ethane, 7 - Propane)
+1, 0, 1, 1, 1,  1 / IFLOW,ISWRL,ITHRM,ICHEM,IPROP,IGRAV
+	IFLOW	-- 0 does no flow calculations.
+		-- 1 does laminar flow calculations.
+		-- 2 does turbulent calculations.
+	ISWRL	-- 0 does no swirl calculations.
+		-- 1 does swirl calculations.
+	ITHRM	-- 0 does no temperature calculations.
+		-- '1' solves energy equation without radiation
+		-- '2' solves energy equation with    radiation from H2O
+	ICHEM	-- 0 does no chemistry calculations.
+		-- 1 does chemistry calculations.
+	IPROP	-- 0 transport properties will be held constant.
+		-- 1 transport properties will be functions of temperature and species.
+		-- 2 transport properties include thermal diffusion
+	IGRAV	-- 0 for no gravitational force; 'n' for including gravity in the calculation.
+			if 'n' is positive,  gravitational force = n.g.
+			if 'n' is negative,  gravitational force = g/n.
+5 / No. of Cards Describing the boundaries = 4.
+		The computational grid has four sides. Each side can be made with
+		one or more segments. Any physical boundary can be used for
+		each segment. The total number of segments on all four sides
+		should be specified here and equal number of boundary specification
+		cards should follow.
+3,0, 0.00635,0.0, 0.0450,0.0,0.0,294.0, 1.0,10.0, 0.0,0.2333,49*0.0/ ISIDE, ITYPE, LENGTH, AL1, & 57 Flow values
+	ISIDE	-- 1  (J=1) bottom side of the grid system
+		-- 2  (J=LJ) top side of the grid system
+		-- 3  (I=1) left side of the grid system
+		-- 4  (I=LI) right side of the grid system
+	ITYPE	-- 0 specified inflow boundary 
+		-- 1 a wall boundary 
+		-- 2 an axis of symmetry boundary 
+		-- 3 a free flow boundary 
+	LENGTH	-- length of this section in meters.
+	AL1	--  0 = AL1 = 1.0 a constant needed while doing extrapolations.
+	57 Flow Values -- required flow values. This depends on ITYPE.
+			if ITYPE = 0 then (u, v, w, T, k, eps, 51 species)
+			if ITYPE = 1 then (Wall type, Wall temperature, Heat flux at the wall)
+		   Wall Type 	-- 1.0 for an adiabatic wall
+			-- 2.0 for an isothermal wall
+		                	-- 3.0 for a wall with constant heat flux
+		if ITYPE = 2 or 3 then (all are zeros)
+0/NBODY
+0/NFINJ 
+5, 32,0.01000, 20,0.00800, 20,0.010, 18,0.015, 16,0.035/ NI,(IREGN(N),XREGN(N),N=1,.)
+	NI -- no. of sections in axial direction
+	IREGN(1) -- no. of grid points in the first section
+	XREGN(1) -- width of the first section in meters
+	IREGN(2) -- no. of grid points in the second section
+	XREGN(2) -- width of the second section in meters
+6, 18,0.00635, 12,0.00565, 08,0.010, 08,0.030, 08,0.036, 06,0.012/ NJ,(JREGN(N),YREGN(N),N=1,.)
+	NJ -- no. of sections in the lower domain
+	JREGN(1) -- no. of grid points in the first section
+	YREGN(1) -- width of the first section in meters
+	JREGN(2) -- no. of grid points in the second section
+	YREGN(2) -- width of the second section in meters
+2000, 0,  0.05, -100, 0 /  ITEND,ISECS,CFLNO,ISTORE,ISTB
+	ITEND 	-- Total number of iterations to be performed.
+	ISECS 	-- Allowed cpu time in seconds
+	CFLNO 	-- nondimensional time-step.
+	ISTORE 	-- 0 for not storing the final solution.
+		-- 1 for storing the final solution in the 'STORE' file.
+		-- n for storing the solution after every nth time-step from ITR = ISTB
+		-- -n for storing the solution at the nth time-step from ITR = ISTB
+		
+1 ,  10  /  ITPRNT,IPRES
+	ITPRNT	-- 0 for no hard copy output.
+	ITPRNT	-- 1 for the final output.
+	IPRES	-- 'prints the residuals after every 'IPRES' iterations.
+'PNT','PNT','PNT','PNT','PNT','PNT'/ Numerical Scheme- U,V,W,H,Species,ke
+ 100,  100,  100,  100,  100,  100/ No.of Relaxations- U,V,W,H,Species,ke
+ 0.9,  0.9,  0.9,  0.9,  0.9,  0.9/RELX- U,V,W,H,Species,ke
+1.0D-08,1.0D-08,1.0D-08,1.0D-08,1.0D-08,1.0D-08/ Tolerance- U,V,W,H,Species,ke
+1000.0,1.0D+11,10000*1/Ea, A,Nr
+	Ea	- Global Activation Energy (used with unicorng.f)
+	A	- Global Pre-exponential (used with unicorng.f)
+	Nr	- (0 or 1) to activate nth reaction  (used with unicorn.f)
+000,2,0,0.04,0.08,0.12,0.20/IBEVOL,ISEVOL,ITEVOL,NEVOL,(XEVOL(N),N=1,NEVOL)
+00,0,0,10,20,15,20,30,40,50,60,80/IBDRV,NDRV,IDRV(1;10)
+0,0/IBDRG,ISDRG
+0,000,2, 0,0.0,1.0,0.0,1.0/NOPT,IBINJ,ITINJ,IEINJ,PDIA,PDEN,PTHR,PVEL
+	NOPT	-- Total number of locations from which particles will be released.
+		x,y coordinates ( in meters) of the "NOPT" locations must be given in the 
+		following lines with 4 locations per line
+         [if NOPT is negative then the "NOPT" locations will be uniformly distributed
+		between (x1,y1) and (x2,y2).  x1, y1, x2 and y2 must be specified 
+		in the following line]
+	ITINJ	-- Injection of particles at all these points after every "ITINJ" time-steps.
+	IEINJ	-- Last time-step for injection of particles
+	PDIA	-- Particle diameter (=0 for massless particles)
+	PDEN	-- Particle density
+	PTHR	-- Particle thermal conductivity
+	PVEL	-- Particle injection velocity relative to the local gas velocity
+000,100,1,11,0.020,0.154,0.0,0.040,0,2/IBANM,IS,KSYM,IP,X1,X2,Y1,Y2,NF,KOR
+	IBANM	-- Time step for storing animation plots
+	IS	-- Time-step increment for storing animation plots
+	KSYM	-- 0 for one side, -- 1 for symmetric imaging
+	IP	-- 1 for particle superimposition and -- 0 for no particles in the plots
+	X1,X2,Y1,Y2 -- coordinates for the plotting frame
+	NF	-- 1 for plotting flame surface location and 0 for no such plotting
+	KOR	-- 1 to 4 gives different orientations
+0,0/NBAVE,NEAVE
+	Gives time-averaged flowfield. Averaging will be made between 
+	"NBAVE" and "NEAVE" time-steps
+'FLAME.DATA',---- INPUT DATA -----
+'FLAMEA.DATA',---- STORE THE FINAL DATA -----
+'TIME.DATA'/----- Time Evolution------
+'DRIVE.DATA'/----- Drive Data------
+'DRAG.DATA'/----- Drag Data------
+'TRACK.DATA'/------ Particle Data-------
+'MOVIE.DATA'/------- Movie Data------------
+'FLAMEAV.DATA'/------ Average Data-----
+'output'/---- WRITE THE DATA -----
+
