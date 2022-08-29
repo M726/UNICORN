@@ -8,7 +8,6 @@
       XBIG=(X1-XMIN)*XPIXL
       YBIG=(Y1-YMIN)*YPIXL
 C---------------------------   DRAW DOT  ------------------------------
-   11 CONTINUE
       II=NINT(XBIG)
       JJ=NINT(YBIG)
       IDOTO=IDOT
@@ -18,7 +17,7 @@ C---------------------------   DRAW DOT  ------------------------------
             IDOTI=IDOTO-1
             END IF
       DO 12 KVV=1,IDOTO
-      DO 12 KHH=1,IDOTO
+      DO 13 KHH=1,IDOTO
       KV=KVV-1
       KH=KHH-1
       IR=NINT(SQRT(FLOAT(KV*KV+KH*KH)))+1
@@ -37,6 +36,7 @@ C---------------------------   DRAW DOT  ------------------------------
       J=JJ-KH
       NAA(I,J)=NCOLOR
    14 CONTINUE
+   13 CONTINUE
    12 CONTINUE
       RETURN
       END 

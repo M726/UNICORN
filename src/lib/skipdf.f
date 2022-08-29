@@ -5,8 +5,8 @@ C***********************************************************************
       COMMON/CB01/ ISYM,IFLOW,ISWRL,ITHRM,ICHEM,IGRAV,ITR,ISKIP(LJ,LI)                  
       COMMON/CB09/ IBOT(LI),ITOP(LI),JLFT(LJ),JRGT(LJ),
      1       FBOT(8+LSP,LI),FTOP(8+LSP,LI),FLFT(8+LSP,LJ),FRGT(8+LSP,LJ)
-      COMMON/BODY/NBODY,IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10)
-      COMMON/FINJ/NFINJ,IFIM(10),JFIM(10),IFIP(10),JFIP(10),FFI(10,30)
+      COMMON/BODY/IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10),NBODY
+      COMMON/FINJ/IFIM(10),JFIM(10),IFIP(10),JFIP(10),FFI(10,30),NFINJ
 C---------------Define Skip variable for flow Calculations--------------
 C--------------- ISKIP=0 no skip
 C--------------- ISKIP=1  skip epcilon calculations
@@ -15,8 +15,9 @@ C--------------- ISKIP=3  Injection locations
 C--------------- ISKIP=10 skip every calculations
 C--------------- ISKIP=-9 introduce flame in the calculations
       DO 200 I=1,LI
-      DO 200 J=1,LJ
+      DO 201 J=1,LJ
       ISKIP(J,I)=0
+  201 CONTINUE
   200 CONTINUE
       IF(NBODY.GE.1) THEN
           DO 202 N=1,NBODY
@@ -49,8 +50,9 @@ C--------------- ISKIP=-9 introduce flame in the calculations
                                     END IF
   206     CONTINUE
           DO 208 I=IBODYM+1,IBODYP-1
-          DO 208 J=JBODYM+1,JBODYP-1
+          DO 209 J=JBODYM+1,JBODYP-1
           ISKIP(J,I)=10
+  209     CONTINUE
   208     CONTINUE
   202     CONTINUE
           END IF

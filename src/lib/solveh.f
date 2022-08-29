@@ -1,4 +1,4 @@
-      SUBROUTINE SOLVEH(ISOR2,RELXH,TOLRH,SIGH,SIGSP,HNORM)
+      SUBROUTINE SOLVEH(ISOR2,RELXH,TOLRH,SIGSP,HNORM)
 C***********************************************************************
       IMPLICIT REAL *8 (A-H,O-Z)
       PARAMETER(LI=711,LJ=131,LE=LI*LJ,LJ2=LJ*2,LSP=52,LRX=544,
@@ -1229,7 +1229,6 @@ C--------------------    CALCULATING TEMPERATURE    --------------------
       IF(TKD.GT.TPOL2) TKD=TPOL2
       IF(TKD.LT.TKDMIN) TKD=TKDMIN
       TK(J,I)=TKD/TSTR
-  523 CONTINUE
   511 CONTINUE
       ENDDO
       ENDDO

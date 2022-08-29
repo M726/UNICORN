@@ -17,7 +17,7 @@ C-------------  KBOUND=1 --- FOR NEUMANN CONDITIONS--------
       IF(KBOUND.EQ.1) THEN
 C------------------------  NEUMANN CONDITION  --------------------------
       DO 608 I=2,LI-1
-      DO 608 J=2,LJ-1
+      DO 611 J=2,LJ-1
       IF(I.EQ.LI-1.AND.J.EQ.LJ-1) GO TO 608
       AE=0.0
       AW=0.0
@@ -45,12 +45,13 @@ C------------------------  NEUMANN CONDITION  --------------------------
                  IF(ISYM.EQ.0) AN=XXC(I)/YYS(J+1)
                  END IF
       PSD(II)=-(AE+AW+AN+AS)
+  611 CONTINUE
   608 CONTINUE
       END IF
       IF(KBOUND.EQ.0) THEN
 C------------------------  DIRICHLET CONDITION  ------------------------
       DO 609 I=2,LI-1
-      DO 609 J=2,LJ-1
+      DO 613 J=2,LJ-1
       AE=1.0/XXS(I+1)/XXC(I)
       AW=1.0/XXS(I)/XXC(I)
       AN=(1.0/YYC(J)+0.5*SYM/Y(J,I))/YYS(J+1)
@@ -65,6 +66,7 @@ C------------------------  DIRICHLET CONDITION  ------------------------
                  PSL(IA)=AS
                  END IF
       PSD(II)=-(AE+AW+AN+AS)
+  613 CONTINUE
   609 CONTINUE
       END IF
 C------------------------     ELEMINATION     --------------------------

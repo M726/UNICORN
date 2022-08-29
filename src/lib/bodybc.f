@@ -15,8 +15,8 @@ C***********************************************************************
       COMMON/CB09/ IBOT(LI),ITOP(LI),JLFT(LJ),JRGT(LJ),
      1       FBOT(8+LSP,LI),FTOP(8+LSP,LI),FLFT(8+LSP,LJ),FRGT(8+LSP,LJ)
       COMMON/CB10/ FBXP(4,LJ),FBXM(4,LJ),FBYP(4,LI),FBYM(4,LI)
-      COMMON/BODY/NBODY,IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10)
-      COMMON/FINJ/NFINJ,IFIM(10),JFIM(10),IFIP(10),JFIP(10),FFI(10,30)
+      COMMON/BODY/IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10),NBODY
+      COMMON/FINJ/IFIM(10),JFIM(10),IFIP(10),JFIP(10),FFI(10,30),NFINJ
       COMMON/HFORM/ HFO(LSP)
       COMMON/KEPS/ AKREF,EPREF,C1KE,C2KE,CMKE,CMKEQ,EE,AVON,PCON
       COMMON/NOISE/ INOISE,IVXTYP,FNOISE,ANOISE(200),VXTYP(5),TTIME
@@ -1024,7 +1024,7 @@ C
   520          CONTINUE
 C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
-            DO 530 I=IBODYM+1,IBODYP-1
+            DO 531 I=IBODYM+1,IBODYP-1
             DO 530 J=JBODYM+1,JBODYP-1
             RHONP(J,I)=1.0
             RHO(J,I)=1.0
@@ -1041,6 +1041,7 @@ C           HT(J,I)=HT(JBODYM,I)
   532       CONTINUE
             FSP(J,I,LSP)=1.0
   530       CONTINUE
+  531       CONTINUE
   500       CONTINUE
             END IF
 C--------------------       INSERT INJECTIONS       --------------------
@@ -1051,7 +1052,7 @@ C--------------------       INSERT INJECTIONS       --------------------
             JFINJM=JFIM(N)
             JFINJP=JFIP(N)
             DO 602 I=IFINJM,IFINJP
-            DO 602 J=JFINJM,JFINJP
+            DO 608 J=JFINJM,JFINJP
             U(J,I)=FFI(N,1)
             V(J,I)=FFI(N,2)
             W(J,I)=FFI(N,3)
@@ -1074,6 +1075,7 @@ C--------------------       INSERT INJECTIONS       --------------------
             IF(FFI(N,2).GT.0.0) P(J,I)=P(JFINJP+1,I)
             IF(FFI(N,2).LT.0.0) P(J,I)=P(JFINJM-1,I)
             HT(J,I)=FFI(N,13)
+  608       CONTINUE
   602       CONTINUE
 C--------------------------for interior boundary conditions
 C           IF(FFI(N,2).GT.0.0) THEN

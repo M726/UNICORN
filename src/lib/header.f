@@ -2,7 +2,6 @@
 C***********************************************************************
        character*1 cpl(4,256)
        character*4 byt4
-       character*1 byta,bytb,bytc,bytd
        character*14 frmtstr
        character*54 headmsw
 C-----------------rainbow color palette---------------------------------

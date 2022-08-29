@@ -17,8 +17,8 @@
       COMMON/CB09/ IBOT(LI),ITOP(LI),JLFT(LJ),JRGT(LJ),
      1       FBOT(8+LSP,LI),FTOP(8+LSP,LI),FLFT(8+LSP,LJ),FRGT(8+LSP,LJ)
       COMMON/CB10/ FBXP(4,LJ),FBXM(4,LJ),FBYP(4,LI),FBYM(4,LI)
-      COMMON/BODY/NBODY,IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10)
-      COMMON/FINJ/NFINJ,IFIM(10),JFIM(10),IFIP(10),JFIP(10),FFI(10,30)
+      COMMON/BODY/IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10),NBODY
+      COMMON/FINJ/IFIM(10),JFIM(10),IFIP(10),JFIP(10),FFI(10,30),NFINJ
       COMMON/LUMAT/ IDATLU(LB),PSL(LL1),PSD(LL)
       COMMON/REAC/ LREV,NRLIND,ITBEF(LRX),ALF(LRX),AKF(LRX),EXAF(LRX),
      1             ALLOW(LRX),AKLOW(LRX),EALOW(LRX),TROE(LRX,4)
@@ -41,8 +41,7 @@ C--NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW--
      1              PATHX(LNMX,LNPR),PATHY(LNMX,LNPR),
      2              PUVEL(LNMX,LNPR),PVVEL(LNMX,LNPR),
      3              GUVEL(LNMX,LNPR),GVVEL(LNMX,LNPR)
-      COMMON/FLOW/ KSYM,LIP,LJP,IOFF,JOFF,NCLR(LNPR),
-     1  XS(LI),YS(LJ+LJ-1),RASMN,RASMX,RAS2MN,RAS2MX
+      COMMON/FLOW/ RASMN,RASMX,RAS2MN,RAS2MX,XS(LI),YS(LJ+LJ-1),KSYM,LIP,LJP,IOFF,JOFF,NCLR(LNPR)
       COMMON/APIXL/ IPAGE,NCOLOR,NBACK,NAA(IPMAX,JPMAX)
       COMMON/FRAME/ IPIXL,JPIXL,XMIN,YMIN,XMAX,YMAX,XPIXL,YPIXL
       COMMON/PEN/NPEN,NAPEN,NBPEN
@@ -478,7 +477,6 @@ C--CONSTANTS---CONSTANTS---CONSTANTS---CONSTANTS---CONSTANTS---CONSTANTS
 			  ETLJ4(I,J)=ETLJ3(I,J)*ETLJ1(I,J)
 		  ENDDO
 	  ENDDO
-   12 CONTINUE
 C--CONSTANTS---CONSTANTS---CONSTANTS---CONSTANTS---CONSTANTS---CONSTANTS
 C-----------------------------------------------------------------------
       RENO=RREF*VREF*ALSTR/AMREF                                             
@@ -529,7 +527,7 @@ C-----------------------------------------------------------------------
      2            NIREGN,IREGN,XREGN,NJREGN,JREGN,YREGN)
       IF(ICODE.GE.1) GO TO 102
       CALL INFLOW(ICODE,INSP,
-     1   RTIN,RTOT,ALENG,NSEG,ISIDE,ITYPE,BCVAL,
+     1   NSEG,ISIDE,ITYPE,BCVAL,
      3   FO2IN)
       CALL SKIPDF
       IF(ICODE.GE.1) GO TO 102
@@ -1110,7 +1108,7 @@ C-----------         SOLVING V-MOMENTUM EQUATION    --------------------
   224 CONTINUE
 C------------------------------GENERATE NOISE---------------------------
       IF(INOISE.GT.0) THEN
-         CALL PERTRB(IANOIS,IBNOIS,JANOIS,JBNOIS,IRAND)
+         CALL PERTRB(IANOIS,IBNOIS,JANOIS,JBNOIS)
          END IF
 C------------------------INPUT RADIAL EJECTION--------------------------
       IF(NEJEC1.GT.0) THEN
@@ -1156,7 +1154,6 @@ C------------------------INPUT RADIAL EJECTION--------------------------
 C-----------------     SOLVING PRESSURE POISSON EQUATION      ----------
       CALL PRDIRC(KBOUND,RESDM)
       CALL BODYBC(INSP,PBACK)
-  249 CONTINUE
       DO 260 I=1,LE
       RESID=RESID+DABS(UTMP(I)-U(I))
   260 CONTINUE
@@ -1186,7 +1183,7 @@ C------------     SOLVING  K-EPS - ENERGY  EQUATIONS    ----------------
       IRLXKE=ISORKE
       ISCHEM=1
       IF(SCHMKE.EQ.SCHM2) ISCHEM=2
-      CALL KESOLV(IRLXKE,RELXKE,TOLRKE,ISCHEM,SIGK,SIGE,RESDK,RESDE)
+      CALL KESOLV(IRLXKE,RELXKE,TOLRKE,SIGK,SIGE,RESDK,RESDE)
   259 CONTINUE
 C-----------------------------------------------------------------------
   269 CONTINUE
@@ -1366,6 +1363,12 @@ C---CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE---
       STOP
       END PROGRAM UNICORN
 
+
+
+C***********************************************************************
+
+
+
       INCLUDE 'lib\acons3.f'
       INCLUDE 'lib\aconsu.f'
       INCLUDE 'lib\aconsv.f'
@@ -1402,9 +1405,3 @@ C---CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE-CLOSE---
 
       
       INCLUDE 'lib\DATA.f'
-
-
-C***********************************************************************
-
-
-

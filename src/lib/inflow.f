@@ -1,5 +1,4 @@
-      SUBROUTINE INFLOW(ICODE,INSP,
-     1   RTIN,RTOT,ALENG,NSEG,ISIDE,ITYPE,BCVAL,
+      SUBROUTINE INFLOW(ICODE,INSP,NSEG,ISIDE,ITYPE,BCVAL,
      2   FO2IN)
 C***********************************************************************
       IMPLICIT REAL *8 (A-H,O-Z)                                        
@@ -15,7 +14,7 @@ C***********************************************************************
       COMMON/CB08/ TPOL1,TPOL2,POLSP(14,LSP),CISP(12,LSP)
       COMMON/CB09/ IBOT(LI),ITOP(LI),JLFT(LJ),JRGT(LJ),
      1       FBOT(8+LSP,LI),FTOP(8+LSP,LI),FLFT(8+LSP,LJ),FRGT(8+LSP,LJ)
-      COMMON/FINJ/NFINJ,IFIM(10),JFIM(10),IFIP(10),JFIP(10),FFI(10,30)
+      COMMON/FINJ/IFIM(10),JFIM(10),IFIP(10),JFIP(10),FFI(10,30),NFINJ
       COMMON/HFORM/ HFO(LSP)
       COMMON/KEPS/ AKREF,EPREF,C1KE,C2KE,CMKE,CMKEQ,EE,AVON,PCON
       COMMON/SOOT/ RSOOT,STMF(LJ,LI),STND(LJ,LI),STDF(LJ,LI)
@@ -53,7 +52,7 @@ C
 	  
 C------------Initialize every grid point
       DO 120 J=1,LJ
-      DO 120 I=1,LI
+      DO 122 I=1,LI
       RHO(J,I)=RREF/RSTR
       U(J,I)=0.0
       V(J,I)=0.0
@@ -75,6 +74,7 @@ C-----------Initialize all species
   121 CONTINUE
       FSP(J,I,2)=FO2IN
       FSP(J,I,LSP)=FN2IN
+  122 CONTINUE
   120 CONTINUE
       IB=0
       JB=0
@@ -432,7 +432,7 @@ C--------------------------INFLOW FOR INJECTIONS------------------------
             JFINJM=JFIM(N)
             JFINJP=JFIP(N)
             DO 202 I=IFINJM,IFINJP
-            DO 202 J=JFINJM,JFINJP
+            DO 203 J=JFINJM,JFINJP
             U(J,I)=FFI(N,1)
             V(J,I)=FFI(N,2)
             W(J,I)=FFI(N,3)
@@ -449,6 +449,7 @@ C--------------------------INFLOW FOR INJECTIONS------------------------
             RHO(J,I)=FFI(N,11)
             P(J,I)=FFI(N,12)
             HT(J,I)=FFI(N,13)
+  203       CONTINUE
   202       CONTINUE
 C--------------------------for boundary conditions
             IF(FFI(N,2).GT.0.0) THEN
@@ -463,8 +464,9 @@ C--------------------------for boundary conditions
             TK(J,I)=TK(JFINJP,I)
             AK(J,I)=AK(JFINJP,I)
             EPS(J,I)=EPS(JFINJP,I)
-            DO 211 ISP=1,LSP
+            DO 213 ISP=1,LSP
             FSP(J,I,ISP)=FSP(JFINJP,I,ISP)
+  213       CONTINUE
   211       CONTINUE
   212       CONTINUE
   210       CONTINUE
@@ -481,8 +483,9 @@ C--------------------------for boundary conditions
             TK(J,I)=TK(JFINJP,I)
             AK(J,I)=AK(JFINJP,I)
             EPS(J,I)=EPS(JFINJP,I)
-            DO 221 ISP=1,LSP
+            DO 223 ISP=1,LSP
             FSP(J,I,ISP)=FSP(JFINJP,I,ISP)
+  223       CONTINUE
   221       CONTINUE
   222       CONTINUE
   220       CONTINUE
@@ -499,8 +502,9 @@ C--------------------------for boundary conditions
             TK(J,I)=TK(J,IFINJP)
             AK(J,I)=AK(J,IFINJP)
             EPS(J,I)=EPS(J,IFINJP)
-            DO 231 ISP=1,LSP
+            DO 233 ISP=1,LSP
             FSP(J,I,ISP)=FSP(J,IFINJP,ISP)
+  233       CONTINUE
   231       CONTINUE
   232       CONTINUE
   230       CONTINUE
@@ -517,8 +521,9 @@ C--------------------------for boundary conditions
             TK(J,I)=TK(J,IFINJP)
             AK(J,I)=AK(J,IFINJP)
             EPS(J,I)=EPS(J,IFINJP)
-            DO 241 ISP=1,LSP
+            DO 243 ISP=1,LSP
             FSP(J,I,ISP)=FSP(J,IFINJP,ISP)
+  243       CONTINUE
   241       CONTINUE
   242       CONTINUE
   240       CONTINUE

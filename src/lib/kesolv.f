@@ -1,4 +1,4 @@
-      SUBROUTINE KESOLV(ISOR,RELXKE,TOLRKE,ISCHEM,SIGK,SIGE,RESDK,RESDE)
+      SUBROUTINE KESOLV(ISOR,RELXKE,TOLRKE,SIGK,SIGE,RESDK,RESDE)
 C***********************************************************************
       IMPLICIT REAL *8 (A-H,O-Z)
       PARAMETER(LI=711,LJ=131,LE=LI*LJ,LSP=52,LIJ=LI+LJ,
@@ -14,7 +14,7 @@ C***********************************************************************
       COMMON/CB09/ IBOT(LI),ITOP(LI),JLFT(LJ),JRGT(LJ),
      1       FBOT(8+LSP,LI),FTOP(8+LSP,LI),FLFT(8+LSP,LJ),FRGT(8+LSP,LJ)
       COMMON/CB10/ FBXP(4,LJ),FBXM(4,LJ),FBYP(4,LI),FBYM(4,LI)
-      COMMON/BODY/NBODY,IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10)
+      COMMON/BODY/IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10),NBODY
       COMMON/KEPS/ AKREF,EPREF,C1KE,C2KE,CMKE,CMKEQ,EE,AVON,PCON
       COMMON/DUMMY/ AW(LJ,LI),AE(LJ,LI),AS(LJ,LI),AN(LJ,LI),AP(LJ,LI),
      1 BW(LJ,LI),BE(LJ,LI),BS(LJ,LI),BN(LJ,LI),BP(LJ,LI),EMU1(LJ,LI),
@@ -169,7 +169,6 @@ C
           AK(JBODYM,I)=AKREF/AKSTR
           END IF
           ENDDO
-  110     CONTINUE
           DO J=JBODYM,JBODYP
           IF(ISKIP(J,IBODYP).GE.11) THEN
           DELX=0.5*XXC(IAP)
@@ -186,7 +185,6 @@ C
           AK(J,IBODYM)=AKREF/AKSTR
           END IF
           ENDDO
-  112     CONTINUE
   109     CONTINUE
           END IF
 C----------------------   POINT RELAXATION SCHEME  ---------------------
@@ -216,7 +214,6 @@ C-----------------    SOLVE EPS - EQUATION        ----------------------
       EPS(J,I)=FNEW
   214 CONTINUE
   210 CONTINUE
-  200 CONTINUE
       IF((RSDK/ENORM).LE.TOLRKE) GO TO 101
   100 CONTINUE
       ISORP=ISORP-1

@@ -11,11 +11,12 @@ C***********************************************************************
      1  HSTR,CPSTR,AKSTR,EPSTR,WMSTR,GASC,BETA1,BETA2,BETA3,BETA4,REI         
       IFIRE=0
       DO 12 I=2,LI-1
-      DO 12 J=2,LJ-1
+      DO 13 J=2,LJ-1
       IF(FSP(J,I,INSP).GE.0.6.AND.FSP(J,I,INSP).LE.0.95) THEN
              IFIRE=IFIRE+1
              ISKIP(J,I)=-9
              END IF
+   13 CONTINUE
    12 CONTINUE
       IF(IFIRE.EQ.0) WRITE(*,812) 
   812 FORMAT(5X,'FIRE IS NOT INTRODUCED INTO THE FLOW')

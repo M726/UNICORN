@@ -26,7 +26,7 @@ C---------------------------   DRAW DOT  ------------------------------
       JDOTP=JJ
    11 CONTINUE
       DO 12 KVV=1,IDOT
-      DO 12 KHH=1,IDOT
+      DO 13 KHH=1,IDOT
       KV=KVV-1
       KH=KHH-1
       IR=NINT(DSQRT(DFLOAT(KV*KV+KH*KH)))+1
@@ -44,6 +44,7 @@ C---------------------------   DRAW DOT  ------------------------------
       J=JJ-KH
       NAA(I,J)=NCOLOR
    14 CONTINUE
+   13 CONTINUE
    12 CONTINUE
       RETURN
       END

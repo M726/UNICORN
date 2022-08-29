@@ -14,7 +14,7 @@ C***********************************************************************
       COMMON/CB08/ TPOL1,TPOL2,POLSP(14,LSP),CISP(12,LSP)
       COMMON/HFORM/ HFO(LSP)
       COMMON/HRLS/ QDOT(LJ,LI)
-      COMMON/BODY/NBODY,IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10)
+      COMMON/BODY/IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10),NBODY
       COMMON/DUMD/ QDSP(LJ,LI,LSP)
       COMMON/DUMR/ XRG(LJ,LI),YRG(LJ,LI),RHORG(LJ,LI),TKRG(LJ,LI),
      *             URG(LJ,LI),VRG(LJ,LI),QRG(LJ,LI),VMURG(LJ,LI),
@@ -26,7 +26,7 @@ C------CONVERT DATA FROM STAGGERED GRID TO REGULAR GRID
       XSHIFT=0.5*(X(1,1)+X(1,2))
       YSHIFT=0.5*(Y(1,1)+Y(2,1))
       DO 1320 I=1,LI-1
-      DO 1320 J=1,LJ-1
+      DO 1326 J=1,LJ-1
       XRG(J,I)=(0.5*(X(J,I)+X(J,I+1))-XSHIFT)*ALSTR
       YRG(J,I)=(0.5*(Y(J,I)+Y(J+1,I))-YSHIFT)*ALSTR
       RHORG(J,I)=0.25*(RHO(J,I)+RHO(J+1,I)+RHO(J,I+1)+RHO(J+1,I+1))*RSTR
@@ -53,6 +53,7 @@ C------CONVERT DATA FROM STAGGERED GRID TO REGULAR GRID
      1                  +VDF(J,I+1,LSP)+VDF(J+1,I+1,LSP))*DSTR
       QSPRG(J,I,LSP)=0.25*(QDSP(J,I,LSP)+QDSP(J+1,I,LSP)
      1                  +QDSP(J,I+1,LSP)+QDSP(J+1,I+1,LSP))
+ 1326 CONTINUE
  1320 CONTINUE
       DO 1322 I=1,LI
       XRG(LJ,I)=XRG(LJ-1,I)
@@ -89,7 +90,7 @@ C------CONVERT DATA FROM STAGGERED GRID TO REGULAR GRID
 C------------------CALCULATION OF TCP AND TENTH-------------------------
 C--------GASC=8.3144, CP--J/g-mole/K, H--J/g-mole, WM---g/mole
       DO 10 I=1,LI
-      DO 10 J=1,LJ
+      DO 11 J=1,LJ
       TKD=TKRG(J,I)
       TKD2=TKD*TKD
       TKD3=TKD*TKD2
@@ -113,13 +114,14 @@ C    4    -HFO(ISP)*HSTR)*FSPRG(J,I,ISP)
       TENTH=TENTH+ENTH(J,I,ISP)
    12 CONTINUE
       CP(J,I)=TCP
+   11 CONTINUE
    10 CONTINUE
 C----------------------------WRITING THE DATA---------------------------
       WRITE(13,102) ITR,TTIME
       WRITE(13,105)
   102 FORMAT(1X,I6,F15.10)
       DO 1340 I=1,LI
-      DO 1340 J=1,LJ
+      DO 1341 J=1,LJ
 C---I,J,XRG(J,I),YRG(J,I),
 C---    RHO(J,I),U(J,I),V(J,I),T(J,I),QDOT(J,I),
 C---    MU(J,I),TC(J,I),CP(J,I),
@@ -129,6 +131,7 @@ C---    FSP(J,I,ISP),DSP(J,I,ISP),QSP(J,I,ISP),ENTH(J,I,ISP)
      *          TKRG(J,I),QRG(J,I),VMURG(J,I),VTCRG(J,I),CP(J,I),
      *         (FSPRG(J,I,ISP),VDFRG(J,I,ISP),QSPRG(J,I,ISP),
      *          ENTH(J,I,ISP),ISP=1,LSP)
+ 1341 CONTINUE
  1340 CONTINUE
   104 FORMAT(I4,',',I4,',',E15.7E3,217(',',E15.7E3))
   105 FORMAT('VARIABLES="i","j","z","r","RHO","v","u","T","QDOT",',

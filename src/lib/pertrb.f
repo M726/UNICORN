@@ -1,4 +1,4 @@
-      SUBROUTINE PERTRB(IANOIS,IBNOIS,JANOIS,JBNOIS,IRAND)
+      SUBROUTINE PERTRB(IANOIS,IBNOIS,JANOIS,JBNOIS)
 C***********************************************************************
       IMPLICIT REAL *8 (A-H,O-Z)                                        
       PARAMETER(LI=711,LJ=131,LE=LI*LJ,LSP=52)        
@@ -19,10 +19,7 @@ C***********************************************************************
      1    +(Y(JBNOIS,IBNOIS)-Y(JCENT,ICENT))**2)
       DO 20 I=IANOIS,IBNOIS
       DO 22 J=JANOIS,JBNOIS
-C      ARAND=RAN(IRAND)
-C     ARAND=RANF()
-C     UFLUC=ANOISE*(ARAND-0.5)*2.0
-C     U(J,I)=U(J,I)+UFLUC
+            
        IF(I.EQ.ICENT.AND.J.EQ.JCENT) GO TO 22
        YA=Y(J,I)-Y(JCENT,ICENT)
        XA=X(J,I)-X(JCENT,ICENT)

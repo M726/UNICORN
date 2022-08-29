@@ -11,8 +11,8 @@ C***********************************************************************
      1  W(LJ,LI),P(LJ,LI),HT(LJ,LI),TK(LJ,LI),AK(LJ,LI),EPS(LJ,LI)
       COMMON/CB06/ ALSTR,VSTR,RSTR,PSTR,TSTR,TMSTR,AMSTR,ACSTR,DSTR,  
      1  HSTR,CPSTR,AKSTR,EPSTR,WMSTR,GASC,BETA1,BETA2,BETA3,BETA4,REI         
-      COMMON/BODY/NBODY,IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10)
-      COMMON/FINJ/NFINJ,IFIM(10),JFIM(10),IFIP(10),JFIP(10),FFI(10,30)
+      COMMON/BODY/IBDM(10),JBDM(10),IBDP(10),JBDP(10),TBD(10),NBODY
+      COMMON/FINJ/IFIM(10),JFIM(10),IFIP(10),JFIP(10),FFI(10,30),NFINJ
       DIMENSION XBDM(10),YBDM(10),XBDP(10),YBDP(10)
       DIMENSION XFIM(10),YFIM(10),XFIP(10),YFIP(10)
       DIMENSION IREGN(10),XREGN(10),JREGN(10),YREGN(10)
@@ -198,9 +198,10 @@ C----------------   CLUSTER14D MESH IN X-DIRECTION   -------------------
 C-----------------------------------------------------------------------
       DO 72 I=1,LI
       XDIS=AAI(I)*ALENG
-      DO 72 J=1,LJ                                                      
+      DO 73 J=1,LJ                                                      
       X(J,I)=XDIS/ALSTR
       Y(J,I)=(RTIN+(RTOT-RTIN)*AAJ(J))/ALSTR
+   73 CONTINUE
    72 CONTINUE
 C--------------------------Inserted Body Lengths-------------------------
       IF(NBODY.GT.0) THEN

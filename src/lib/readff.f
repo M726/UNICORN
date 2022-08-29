@@ -71,7 +71,7 @@ C--------------------------ONE TO ONE TRANSFER--------------------------
             GO TO 920
             END IF
           DO 910 I=1,LI
-          DO 910 J=1,LJ
+          DO 911 J=1,LJ
           IA=(I-1)*LJ+J
           RHO(J,I)=DATA2(IA+ILJL*2)
           TOT=0.0
@@ -99,6 +99,7 @@ C--------------------------ONE TO ONE TRANSFER--------------------------
             AK(J,I)=DATA2(IA+ILJL*7+NI+NJ+ILJL*LLSP)
             EPS(J,I)=DATA2(IA+ILJL*8+NI+NJ+ILJL*LLSP)
           END IF
+  911     CONTINUE
   910     CONTINUE
           GO TO 397
           END IF
@@ -352,7 +353,7 @@ C-----------------------------INTERPOLATE V-----------------------------
 C------------------CALCULATE ENTHALPY USING NEW VARIABLES----------------
   397 CONTINUE
       DO 398 I=1,LI
-      DO 398 J=1,LJ
+      DO 401 J=1,LJ
       TKD=TK(J,I)*TSTR
       TKD2=TKD*TKD
       TKD3=TKD*TKD2
@@ -369,6 +370,7 @@ C------------------CALCULATE ENTHALPY USING NEW VARIABLES----------------
   399 CONTINUE
       HT(J,I)=HNEW
      1       +0.5*(U(J,I)*U(J,I)+V(J,I)*V(J,I)+W(J,I)*W(J,I))
+  401 CONTINUE
   398 CONTINUE
       RETURN
       END
