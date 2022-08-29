@@ -1,36 +1,4 @@
-C**** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** *****@
-C   unicornd-mild-sd-5
-C                     WEAK-COMPRESSIBLE FLOW SOLUTION
-C            (UNSTEADY EQUATIONS FOR CHEMICALLY REACTING FLOWS)
-C                                                      Viswanath R Katta
-C
-C***********************************************************************
-C                                                                       
-C                      Staggered Mesh: LI=711,LJ=131                               
-C                                                                       
-C***********************************************************************
-C                                                                       
-C       Combustion of Heptane with Sandiego Mechanism (2005/12/01)   
-C          http://www-mae.ucsd.edu/~combustion/cermech/                                     
-C
-C   FUEL: 1 - H2,  2--CH4,  3--CH3OH,  4--C2H2, 5--C2H4, 6--C2H6, 
-C         7--C3H8, 8--C3H6, 9--CH2O,  10--CO,  11--C7H16
-C
-C     1-H2          2-O2          3-H           4-O           5-OH        
-C     6-H2O         7-HO2         8-H2O2        9-CO         10-CO2       
-C    11-HCO        12-CH2O       13-CH4        14-CH3        15-T-CH2     
-C    16-S-CH2      17-C2H4       18-CH3O       19-C2H5       20-C2H6      
-C    21-CH         22-C2H2       23-C2H3       24-CH2CHO     25-C2H4O     
-C    26-CH2CO      27-HCCO       28-C2H        29-CH2OH      30-CH3OH     
-C    31-C2H5OH     32-CH3CHO     33-CH3CHOH    34-CH2CH2OH   35-CH3CO     
-C    36-CH3CH2O    37-C3H4       38-C3H3       39-C3H5       40-C3H6      
-C    41-C3H8       42-I-C3H7     43-N-C3H7     44-C4H6       45-CHO       
-C    46-C5H8       47-C7H16      48-C4H8       49-C5H10      50-AR        
-C    51-HE         52-N2        
-C
-C                        FINTE-RATE CHEMISTRY
-C                                                                       
-C***********************************************************************
+
       PROGRAM UNICORN
       IMPLICIT REAL *8 (A-H,O-Z)   
       PARAMETER(LI=711,LJ=131,LE=LI*LJ,LJ2=LJ*2,LSP=52,LRX=544,               
@@ -150,7 +118,7 @@ C       Read input.uni file here
 C
 CRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
       MP=15
-      OPEN(MP,FILE='input.uni',ACCESS='SEQUENTIAL',STATUS='OLD')
+      OPEN(MP,FILE='cfg/input.uni',ACCESS='SEQUENTIAL',STATUS='OLD')
       READ(MP,1) ICAL
     1 FORMAT(I1)
       READ(MP,*) ISYM,IREAD,IGNIT
