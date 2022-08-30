@@ -18,7 +18,8 @@ C***********************************************************************
      1              PATHX(LNMX,LNPR),PATHY(LNMX,LNPR),
      2              PUVEL(LNMX,LNPR),PVVEL(LNMX,LNPR),
      3              GUVEL(LNMX,LNPR),GVVEL(LNMX,LNPR)
-      COMMON/FLOW/ RASMN,RASMX,RAS2MN,RAS2MX,XS(LI),YS(LJ+LJ-1),KSYM,LIP,LJP,IOFF,JOFF,NCLR(LNPR)
+      COMMON/FLOW/ RASMN,RASMX,RAS2MN,RAS2MX,XS(LI),YS(LJ+LJ-1),
+     1             KSYM,LIP,LJP,IOFF,JOFF,NCLR(LNPR)
       COMMON/APIXL/ IPAGE,NCOLOR,NBACK,NAA(IPMAX,JPMAX)
       COMMON/FRAME/ IPIXL,JPIXL,XMIN,YMIN,XMAX,YMAX,XPIXL,YPIXL
       COMMON/PEN/NPEN,NAPEN,NBPEN
@@ -177,7 +178,7 @@ C     YSHIFT=0.5*(Y(1,1)+Y(2,1))
       RAS2MN=1.0D+10
       FVMAX=0.0
       DO 36 I=1,LIP-1
-      DO 36 J=1,LJP-1
+      DO 37 J=1,LJP-1
       IA=I+IOFF
       JA=J+JOFF
       TKSTG=0.25*(TK(JA,IA)+TK(JA+1,IA)+TK(JA,IA+1)+TK(JA+1,IA+1))
@@ -194,6 +195,7 @@ C    1 +RHO(JA,IA+1)*STMF(JA,IA+1)+RHO(JA+1,IA+1)*STMF(JA+1,IA+1))
      1       +(V(JA+1,IA)+V(JA+1,IA+1))**2
      2   +0.25*(W(JA,IA)+W(JA+1,IA)+W(JA,IA+1)+W(JA+1,IA+1))**2)
       IF(VV.GT.FVMAX) FVMAX=VV  
+   37 CONTINUE
    36 CONTINUE
   100 CONTINUE
       RASCON=(RAS2MX-RAS2MN)/(RASMX-RASMN)
@@ -247,8 +249,9 @@ C-------------------- FOR FINITE-RATE CHEMISTRY MODELS -----------------
  1326       CONTINUE
             END IF
       DO 590 I=1,IPIXL
-      DO 590 J=1,JPIXL
+      DO 591 J=1,JPIXL
       NAA(I,J)=0
+  591 CONTINUE
   590 CONTINUE
       IFPLOT=2
 C---------------------------FLOW VARIABLE PLOTS-------------------------
@@ -309,7 +312,7 @@ C-------------------------   VELOCITY VECTORS  -------------------------
 C-------------------  RASTER & CONOUR PLOTS ----------------------------
       RASLMT=(RASMX-RASMN)
       DO 600 I=1,LIP
-      DO 600 J=1,LJP
+      DO 599 J=1,LJP
       IA=I+IOFF
       JA=J+JOFF
       FS(I,J)=0.25*(TK(JA,IA)+TK(JA+1,IA)+TK(JA,IA+1)+TK(JA+1,IA+1))
@@ -317,25 +320,29 @@ C     FS2(I,J)=0.25*(RHO(JA,IA)*STMF(JA,IA)+RHO(JA+1,IA)*STMF(JA+1,IA)
 C    1 +RHO(JA,IA+1)*STMF(JA,IA+1)+RHO(JA+1,IA+1)*STMF(JA+1,IA+1))
       FS2(I,J)=0.25*(FSP(JA,IA,05)+FSP(JA+1,IA,05)
      1        +FSP(JA,IA+1,05)+FSP(JA+1,IA+1,05))
+  599 CONTINUE
   600 CONTINUE
       DO 601 I=LIP,2,-1
-      DO 601 J=LJP,2,-1
+      DO 603 J=LJP,2,-1
       FS(I,J)=FS(I-1,J-1)
       FS2(I,J)=FS2(I-1,J-1)
+  603 CONTINUE
   601 CONTINUE
       IF(KSYM.EQ.1) THEN
-                    DO 602 I=1,LIP
+                    DO 607 I=1,LIP
                     DO 602 J=LJ2,LJP,-1
                     JA=J-LJP+1
                     FS(I,J)=FS(I,JA)
   602               CONTINUE
+  607               CONTINUE
 C------------------------ADD THESE LINES FOR FUEL CONCENTRATION PLOT----
                     DO 604 I=1,LIP
-                    DO 604 J=1,LJP-1
+                    DO 605 J=1,LJP-1
                     JA=LJP-J+1
                     FSNEW=1.0*(FS2(I,JA)-RAS2MN)/RASCON
                     IF(FSNEW.GT.RASLMT) FSNEW=RASLMT
                     FS(I,J)=RASMN+FSNEW
+  605               CONTINUE
   604               CONTINUE
 C-------------------added
 C----------use these lines for making temperature on both the sides-----
@@ -347,23 +354,26 @@ C 606               CONTINUE
 C-------------------added
                     END IF
 C-------------------  RASTER PLOTS ----------------------------
-      DO 610 I=1,LIP
+      DO 611 I=1,LIP
       DO 610 J=1,LJJ
       IF(FS(I,J).GT.RASMX) FS(I,J)=RASMX
       IF(FS(I,J).LT.RASMN) FS(I,J)=RASMN
   610 CONTINUE
+  611 CONTINUE
       IBACK=999999
       IBACKM=IBACK-10
       BACK=DFLOAT(IBACKM)/(RASMX-RASMN)
-      DO 620 I=1,LIP
+      DO 621 I=1,LIP
       DO 620 J=1,LJJ
       FS(I,J)=0.0+BACK*(FS(I,J)-RASMN)
   620 CONTINUE
+  621 CONTINUE
 C-----------------   INITIALIZE 'NAA' WITH A BIG NUMBER   -----
-      DO 630 I=1,IPIXL
+      DO 631 I=1,IPIXL
       DO 630 J=1,JPIXL
       NAA(I,J)=IBACK
   630 CONTINUE
+  631 CONTINUE
       DXP=(XMAX-XMIN)/DFLOAT(IPIXL-1)
       DYP=(YMAX-YMIN)/DFLOAT(JPIXL-1)
 C-----------------   IN  I&J-DIRECTIONS   ------------------------
@@ -406,7 +416,7 @@ C---------------------- FIND MAXIMA & MINIMA  -------------------------
       IBACKW=IBACK-2
       IBMAX=0
       IBMIN=IBACK+10
-      DO 650 I=1,IPIXL
+      DO 649 I=1,IPIXL
       DO 650 J=1,JPIXL
       NIJ=NAA(I,J)
       IF(NIJ.GE.IBACKW) GO TO 651
@@ -414,18 +424,20 @@ C---------------------- FIND MAXIMA & MINIMA  -------------------------
       IF(NIJ.LT.IBMIN) IBMIN=NIJ
   651 CONTINUE
   650 CONTINUE
+  649 CONTINUE
       IF(IBMAX.LT.IBACKM) IBMAX=IBACKM
       IF(IBMIN.GT.0) IBMIN=0
       IPLOW=1
       IPHIG=253
       FACT=DFLOAT(IPHIG-IPLOW)/DFLOAT(IBMAX-IBMIN)
       DO 652 I=1,IPIXL
-      DO 652 J=1,JPIXL
+      DO 653 J=1,JPIXL
       IF(NAA(I,J).GE.IBACKW) THEN
                             NAA(I,J)=NBACK
-                            GO TO 653
+                            GO TO 654
                             END IF
       NAA(I,J)=IPLOW+INT(FACT*DFLOAT(NAA(I,J)-IBMIN))
+  654 CONTINUE
   653 CONTINUE
   652 CONTINUE
       END IF
@@ -495,11 +507,12 @@ C                 CALL DOT(X1,-Y1,NFSURF,IDOTP,JDOTP,IDSYM,KSYM)
   670     CONTINUE
           END IF
            DO 400 I=1,IPIXL
-           DO 400 J=1,JPIXL
+           DO 401 J=1,JPIXL
            IS=NAA(I,J)
            IF(IS.GT.255) IS=255
            IF(IS.LT.0) IS=0
            BB(I,J)=CHAR(IS)
+  401      CONTINUE
   400      CONTINUE
            IF(IPAGE.GE.3) IPAGE=IPAGE+1
            IF(IPAGE.EQ.2) THEN

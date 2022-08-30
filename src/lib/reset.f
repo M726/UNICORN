@@ -15,7 +15,7 @@ C***********************************************************************
       COMMON/CB08/ DATC(2+26*LSP)
       COMMON/CB09/ IDATB(IDB1),DATB(IDB2)
       COMMON/CB10/ DATF(IDF)
-      COMMON/LUMAT/ IDATLU(LB),DATLU(IDLU)
+      COMMON/LUMAT/ DATLU(IDLU),PSD(LL),IDATLU(LB)
       COMMON/DUMMY/ DATD(LPD)
       DO 101 I=1,ID1
       IDAT(I)=0

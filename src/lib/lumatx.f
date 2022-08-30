@@ -5,7 +5,7 @@ C***********************************************************************
      1 LB=LJ-2,LL=(LI-2)*LB,LL1=LB*LL-(LB+1)*LB/2)
       COMMON/CB01/ ISYM,IFLOW,ISWRL,ITHRM,ICHEM,IGRAV,ITR,ISKIP(LJ,LI)                  
       COMMON/CB03/ DT,X(LJ,LI),Y(LJ,LI),XXC(LI),XXS(LI),YYC(LJ),YYS(LJ)           
-      COMMON/LUMAT/ IBAND(LB),PSL(LL1),PSD(LL)
+      COMMON/LUMAT/ PSL(LL1),PSD(LL),IBAND(LB)
 C-------------  KBOUND=0 --- FOR DIRICHLET CONDITIONS--------
 C-------------  KBOUND=1 --- FOR NEUMANN CONDITIONS--------
       LEND=LL-KBOUND
