@@ -2,9 +2,9 @@
 C***********************************************************************
       IMPLICIT REAL*8 (A-H,O-Z)
       PARAMETER(LI=711,LJ=131,LE=LI*LJ,LIJ=LI+LJ,LSP=52,ID1=7+LE,
-     1   ID2=4+LSP,ID3=2*LE+2*LIJ+1,ID5=(9+LSP)*LE,IDNT=LE,IDN=20,
+     1   ID2=4+LSP,ID3=1+2*LE+2*LI+2*LJ,ID5=(9+LSP)*LE,IDNT=LE,IDN=20,
      2   IDV=(3+LSP)*LE,IDB1=2*LIJ,IDB2=2*(8+LSP)*LIJ,IDF=2*4*LIJ,
-     3   LB=LJ-2,LL=(LI-2)*LB,IDLU=LB*LL-(LB+1)*LB/2+LL,LPD=55*LE)
+     3   LB=LJ-2,LL=(LI-2)*LB,LL1=LB*LL-(LB+1)*LB/2,LPD=55*LE)
       COMMON/CB01/ IDAT(ID1)                      
       COMMON/CB02/ DAT2(ID2)        
       COMMON/CB03/ DAT3(ID3)         
@@ -15,7 +15,7 @@ C***********************************************************************
       COMMON/CB08/ DATC(2+26*LSP)
       COMMON/CB09/ IDATB(IDB1),DATB(IDB2)
       COMMON/CB10/ DATF(IDF)
-      COMMON/LUMAT/ DATLU(IDLU),PSD(LL),IDATLU(LB)
+      COMMON/LUMAT/ PSL(LL1),PSD(LL),IDATLU(LB)
       COMMON/DUMMY/ DATD(LPD)
       DO 101 I=1,ID1
       IDAT(I)=0
@@ -48,7 +48,7 @@ C***********************************************************************
       IDATLU(I)=0
   115 CONTINUE
       DO 116 I=1,IDLU
-      DATLU(I)=0.0
+      PSL(I)=0.0
   116 CONTINUE
       DO 117 I=1,IDNT
       DATNT(I)=0.0
@@ -56,5 +56,11 @@ C***********************************************************************
       DO 120 I=1,LPD
       DATD(I)=0.0
   120 CONTINUE
+
+
+C-----New - Maintains correct /lumat/ structure and still clears everything.
+      DO 118 I=1, LL
+      PSD(I)=0.0
+  118 CONTINUE
       RETURN                                                              
       END     

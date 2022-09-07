@@ -1,3 +1,11 @@
+      
+      INCLUDE 'lib\arrow.f'
+      INCLUDE 'lib\dot.f'
+      INCLUDE 'lib\dotpr.f'
+      INCLUDE 'lib\drawby.f'
+      INCLUDE 'lib\header.f'
+      INCLUDE 'lib\line.f'
+
       SUBROUTINE PLOTS(NOPR,NOINJ,IPANM,
      1                 X1ANM,Y1ANM,X2ANM,Y2ANM,NFSURF,KORNT)
 C***********************************************************************

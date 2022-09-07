@@ -1,3 +1,8 @@
+      
+      INCLUDE 'lib\ckrates.f'
+      INCLUDE 'lib\solvesp.f'
+      INCLUDE 'lib\solveh.f'
+
       SUBROUTINE SPGSOLV(ISOR1,RELXSP,TOLRSP,RESDC,
      1  ISOR2,RELXH,TOLRH,RESDH,SIGH,SIGSP)
 C***********************************************************************

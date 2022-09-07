@@ -1,4 +1,3 @@
-
       PROGRAM UNICORN
       IMPLICIT REAL *8 (A-H,O-Z)   
       PARAMETER(LI=711,LJ=131,LE=LI*LJ,LJ2=LJ*2,LSP=52,LRX=544,               
@@ -67,6 +66,9 @@ C--NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW-NEW--
      1             SCHM1,SCHM2
       CHARACTER *5 EJTYPE(5)
       CHARACTER *6 FUELTYPES(11)
+      REAL *8 TIMESTART,TIMEFINISH,TIMETOTAL,
+     1        TIMEAVERAGE,TIMEREMAINING,DELTATIME
+
       DATA SCHM1,SCHM2 /'ADI','PNT'/
       DATA EJTYPE /'FUEL ',' AIR ','  N2 ','SUPPR','LOCAL'/
 C
@@ -449,6 +451,7 @@ C**************  DEFINING NON-DIMENSIONALIZING FACTORS *****************
       BETA4=DFLOAT(IGRAV)*GFORCE*ALSTR/VSTR/VSTR
       IF(IGRAV.LE.-1) BETA4=GFORCE*ALSTR/VSTR/VSTR/DFLOAT(-IGRAV)
       HCONV=GASC/WMSTR/HSTR
+      
 C*************************      END     ********************************
 C44444444444   NON-DIMENSIONALIZIG THE FLOW PARAMETERS     4444444444444
       CONVRC=418.68*1.9891D-04*DSQRT(TSTR/1000.0/WMSTR)/ACSTR
@@ -808,13 +811,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C-------------------START TIME STEP------------------------------
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       DO 100 ITR=1,ITEND
-	  
-C     CLOCK=SECOND()-CLOCK1
-      CLOCK=0.0
-      IF(CLOCK.GE.FSECS) THEN
-                         ITEND=0
-                         GO TO 101
-                         END IF
+      CALL CPU_TIME(TIMESTART)
+
 C------------------  INITIALIZE THE NEW VARIABLES ----------------------
       DO 109 I=1,LE
       RHONP(I)=RHO(I)
@@ -1191,22 +1189,36 @@ C-----------------------------------------------------------------------
       DO 267 I=1,LE
       RHO(I)=RHONP(I)
   267 CONTINUE
+
+  
+      CALL CPU_TIME(TIMEFINISH)
+      TIMETOTAL = TIMETOTAL + (TIMEFINISH-TIMESTART)
+      DELTATIME = TIMEFINISH-TIMESTART
+      TIMEAVERAGE = TIMETOTAL/ITR
+      TIMEREMAINING = (TIMEAVERAGE)*(ITEND-ITR)
+
       TTIME=TTIME+DT*ALSTR/VSTR
       IA=ITR+IPRES*20-1
       IF(IA.GT.ITEND) IA=ITEND
-      IF(MOD(ITR-1,IPRES*20).EQ.0) WRITE(*,754) ITR,IA,DTMS
+      IF(MOD(ITR-1,IPRES*20).EQ.0) WRITE(*,754) ITR,IA,DTMS,TIMEAVERAGE, 
+     1       TIMEREMAINING
   754 FORMAT(1X,13('-'),' ITERATIONS FROM ',I5,' TO ',I5,
      1       2X,'(DT = ',F8.6,' ms) ',13('-')/
      2       2X,'U-RESID            M-RESID   HT-RESID     CHEM-RES',
-     3       6X,'K & EPS-RESID')
+     3       6X,'K & EPS-RESID',
+     4       3X,'Avg Time: ', F10.2,
+     5       3X,'Remaining: ', F10.1)
       IF(MOD(ITR,IPRES).EQ.0) WRITE(*,756) RESID,IRLXU,IRLXV,IRLXW,
-     1        RESDM,RESDH,IRLXH,RESDC,IRLXSP,RESDK,RESDE,IRLXKE
-      IF(ITR.EQ.1) WRITE(16,754) ITR,ITEND,DTS
+     1        RESDM,RESDH,IRLXH,RESDC,IRLXSP,RESDK,RESDE,IRLXKE,
+     2        DELTATIME
+      IF(ITR.EQ.1) WRITE(16,754) ITR,ITEND,DTS,  TIMETOTAL/ITR, 
+     1        (TIMETOTAL/ITR)*(ITEND-ITR)
       IF(MOD(ITR,100).EQ.0) WRITE(16,756) RESID,IRLXU,IRLXV,IRLXW,
-     1        RESDM,RESDH,IRLXH,RESDC,IRLXSP,RESDK,RESDE,IRLXKE
+     1        RESDM,RESDH,IRLXH,RESDC,IRLXSP,RESDK,RESDE,IRLXKE,
+     2        DELTATIME
   756 FORMAT(1X,1PE8.1,'(',I2,',',I2,',',I2,') ',1PE8.1,1X,
      1  1PE8.1,'(',I2,') ',1PE8.1,'(',I2,') ',
-     1  1PE8.1,' &',1PE8.1,'(',I2,')')
+     1  1PE8.1,' &',1PE8.1,'(',I2,') T=', F10.1)
       IF(MOD(ITR,ITPRNT).EQ.0) THEN
       WRITE(16,758) ITR,DTMS,TTIME,RESID,IRLXU,IRLXV,RESDW,IRLXW,
      1        RESDM,RESDH,IRLXH,RESDC,IRLXSP,RESDK,RESDE,IRLXKE
@@ -1317,8 +1329,8 @@ C----------------------------FLOW AVERAGE-------------------------------
              END IF
 			 
 C----------------------------END OF A TIME-STEP-------------------------
+
   100 CONTINUE
-  101 CONTINUE
       ITR=ITR-1
       IF(NEVOL.GE.1) THEN
              TTIME=-1.0
@@ -1374,19 +1386,11 @@ C***********************************************************************
       INCLUDE 'lib\aconsu.f'
       INCLUDE 'lib\aconsv.f'
       INCLUDE 'lib\adisolv.f'
-      INCLUDE 'lib\arrow.f'
       INCLUDE 'lib\bodybc.f'
-      INCLUDE 'lib\ckrates.f'
-      INCLUDE 'lib\dot.f'
-      INCLUDE 'lib\dotpr.f'
-      INCLUDE 'lib\drawby.f'
       INCLUDE 'lib\fire.f'
-      INCLUDE 'lib\header.f'
       INCLUDE 'lib\inflow.f'
       INCLUDE 'lib\kesolv.f'
-      INCLUDE 'lib\line.f'
       INCLUDE 'lib\lumatx.f'
-      INCLUDE 'lib\num2bit4.f'
       INCLUDE 'lib\pertrb.f'
       INCLUDE 'lib\plots.f'
       INCLUDE 'lib\prdirc.f'
@@ -1398,8 +1402,6 @@ C***********************************************************************
       INCLUDE 'lib\readff.f'
       INCLUDE 'lib\reset.f'
       INCLUDE 'lib\skipdf.f'
-      INCLUDE 'lib\solveh.f'
-      INCLUDE 'lib\solvesp.f'
       INCLUDE 'lib\spgsolv.f'
       INCLUDE 'lib\stdata.f'
       INCLUDE 'lib\swlsolv.f'

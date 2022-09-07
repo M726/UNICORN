@@ -1,3 +1,5 @@
+       
+      INCLUDE 'lib\num2bit4.f'
        subroutine header(mpp,ipix,jpix)
 C***********************************************************************
        character*1 cpl(4,256)
