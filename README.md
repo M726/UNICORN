@@ -30,7 +30,12 @@ Combustion of Heptane with [Sandiego Mechanism](http://www-mae.ucsd.edu/~combust
 	    46-C5H8       47-C7H16      48-C4H8       49-C5H10      50-AR        
 	    51-HE         52-N2        
 
-
+Output Properties:
+	i,j,z,r,rho,v,u,T,q*,vmu,vtc,cp
+	y
+	vdf
+	prd
+	h
 
 ### Credit
 Originally written by Viswanath R Katta
