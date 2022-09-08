@@ -12,8 +12,8 @@ C***********************************************************************
       IMPLICIT REAL*8 (A-H,O-Z)
       PARAMETER(LI=711,LJ=131,LSP=52,
      1   IPMAX=500,JPMAX=200,LNPR=200,LNMX=2000)
-      CHARACTER *2 BFL2A(10),BFL2B(100)
-      CHARACTER *5 BFL1,BFL2*4,BFL3*4,BBFILE*13
+      CHARACTER *2 BFL2A(10)
+      CHARACTER *5 BFL2*4
       CHARACTER*14 FRMTSTR
       COMMON/CB03/ DT,X(LJ,LI),Y(LJ,LI),XXC(LI),XXS(LI),YYC(LJ),YYS(LJ)           
       COMMON/CB04/ RHO(LJ,LI),FSP(LJ,LI,LSP),U(LJ,LI),V(LJ,LI),W(LJ,LI),
@@ -31,19 +31,9 @@ C***********************************************************************
       COMMON/APIXL/ IPAGE,NCOLOR,NBACK,NAA(IPMAX,JPMAX)
       COMMON/FRAME/ IPIXL,JPIXL,XMIN,YMIN,XMAX,YMAX,XPIXL,YPIXL
       COMMON/PEN/NPEN,NAPEN,NBPEN
-      DATA BFL1,BFL3 /'movie','.bmp'/
       DATA BFL2A / '-0','-1','-2','-3','-4','-5','-6','-7','-8','-9'/
-      DATA BFL2B / '00','01','02','03','04','05','06','07','08','09',
-     1             '10','11','12','13','14','15','16','17','18','19',
-     2             '20','21','22','23','24','25','26','27','28','29',
-     3             '30','31','32','33','34','35','36','37','38','39',
-     4             '40','41','42','43','44','45','46','47','48','49',
-     5             '50','51','52','53','54','55','56','57','58','59',
-     6             '60','61','62','63','64','65','66','67','68','69',
-     7             '70','71','72','73','74','75','76','77','78','79',
-     8             '80','81','82','83','84','85','86','87','88','89',
-     9             '90','91','92','93','94','95','96','97','98','99'/
       CHARACTER *1 BB(IPMAX,JPMAX)
+      CHARACTER *25 FILENAME
       DIMENSION XBDM(10),YBDM(10),XBDP(10),YBDP(10)
       DIMENSION FS(LI,LJ+LJ-1),XFL(LI),YFL(LI)
       DIMENSION FS2(LI,LJ)
@@ -523,21 +513,12 @@ C                 CALL DOT(X1,-Y1,NFSURF,IDOTP,JDOTP,IDSYM,KSYM)
   401      CONTINUE
   400      CONTINUE
            IF(IPAGE.GE.3) IPAGE=IPAGE+1
-           IF(IPAGE.EQ.2) THEN
-                          BFL2=BFL2A(1)//BFL2B(1)
-                          ELSE
-                          IPP=IPAGE-3
-                          IPPA=(IPP-1)/100
-                          IPPB=IPP-IPPA*100
-                          BFL2=BFL2A(IPPA+1)//BFL2B(IPPB)
-                          END IF
-C          IF(RASMX.LE.1000.0/TSTR) THEN
-C                        IPAGE=IPAGE-2
-C                        IF(IPAGE.NE.0) IPAGE=1
-C                        END IF
-           BBFILE=BFL1//BFL2//BFL3
+           IF(IPAGE.NE.2) IPP=IPAGE-3
+
+           WRITE(FILENAME, 10) IPP
+   10      FORMAT('movie-',(I6.6),'.bmp')
            MPP=82
-           OPEN(MPP,FILE="images\"//BBFILE,STATUS='UNKNOWN')
+           OPEN(MPP,FILE="images\"//FILENAME,STATUS='UNKNOWN')
            ITMP=IPIXL*JPIXL
            IF(KORNT.EQ.1) THEN
                 CALL header(MPP,IPIXL,JPIXL)
